@@ -15,7 +15,7 @@ names and faces of your Meetup attendees.
 ## Usage
 
 ```
-git submodule init --update
+git submodule update --init
 pip install -r requirements.txt
 
 # Get your MEETUP_API_KEY here:
