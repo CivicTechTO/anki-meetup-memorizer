@@ -1,7 +1,7 @@
 # Meetup RSVP Memorizer
 
 This is a quick little script for helping Meetup.com event organizers
-remember the names of attendees.
+remember the names and faces of attendees, taken from their public profiles.
 
 ![Screenshot of Anki Desktop and AnkiDroid](https://imgur.com/h471IJt.png)
 
