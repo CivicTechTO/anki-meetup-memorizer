@@ -16,6 +16,9 @@ names and faces of your Meetup attendees.
 
 ## Usage
 
+To run the script and generate a new APKG file for
+[importing](https://ankidroid.org/docs/manual.html#importing):
+
 ```
 git submodule update --init
 pip install -r requirements.txt
