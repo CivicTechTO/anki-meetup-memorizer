@@ -4,6 +4,7 @@ This is a quick little script for helping Meetup.com event organizers
 remember the names of attendees.
 
 ![Screenshot of Anki Desktop](https://imgur.com/IepAuja.png)
+![Screenshot of AnkiDroid](http://imgur.com/nvB5gj6.png)
 
 **Meetup.com** is an online platform for finding and organizing
 in-person communities of practice.
