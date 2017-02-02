@@ -22,7 +22,8 @@ pip install -r requirements.txt
 # https://secure.meetup.com/meetup_api/key/
 export MEETUP_API_KEY=xxxxxxxxx
 
-# Edit the event_id before executing:
-PYTHONPATH=$PWD/anki: python generate_csv.py
+# Find the <meetup-event-id> in the event URL
+./generate_csv.py <meetup-event-id>
+
 PYTHONPATH=$PWD/anki: python create_apkg.py
 ```
