@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# See: https://superuser.com/questions/698902/can-i-create-an-anki-deck-from-a-csv-file
+
 import anki
 import csv
 import sys
