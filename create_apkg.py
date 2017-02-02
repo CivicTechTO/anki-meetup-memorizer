@@ -1,11 +1,16 @@
+#!/usr/bin/env python
+
 import anki
 import csv
+import sys
 import tempfile
-import urllib
 import os
+import urllib
 
 from anki.exporting import AnkiPackageExporter
 
+
+script, rsvp_csvfile = sys.argv
 
 def retrieveURL(url):
     "Download file into media folder and return local filename or None."
@@ -55,7 +60,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
     note.guid = 0
     collection.addNote(note)
 
-    filepath = collection.media._oldcwd + '/rsvps.csv'
+    filepath = collection.media._oldcwd + '/' + rsvp_csvfile
     reader = csv.reader(open(filepath))
     for i, row in enumerate(reader):
         if i == 0: continue
@@ -72,5 +77,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
     # Not sure if this is necessary
     collection.media.findChanges()
 
+    output_file = collection.media._oldcwd + '/' + rsvp_csvfile.replace('.csv', '.apkg')
+
     export = AnkiPackageExporter(collection)
-    export.exportInto('/tmp/test.apkg')
+    export.exportInto(output_file)

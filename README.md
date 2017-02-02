@@ -25,5 +25,6 @@ export MEETUP_API_KEY=xxxxxxxxx
 # Find the <meetup-event-id> in the event URL
 ./generate_csv.py <meetup-event-id>
 
-PYTHONPATH=$PWD/anki: python create_apkg.py
+# Point this script at the generated CSV
+PYTHONPATH=$PWD/anki: ./create_apkg.py <meetup-rsvp-csv>
 ```
