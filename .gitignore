@@ -1,3 +1,2 @@
 .env
-*.csv
-*.apkg
+outputs/

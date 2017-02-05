@@ -32,3 +32,5 @@ export MEETUP_API_KEY=xxxxxxxxx
 # Find the <meetup-event-id> in the event URL
 make apkg <meetup-event-id>
 ```
+
+Your generated APKG file will now be in the `outputs/` directory.

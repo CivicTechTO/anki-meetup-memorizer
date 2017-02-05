@@ -4,6 +4,7 @@
 
 import anki
 import csv
+import errno
 import meetup.api
 import sys
 import tempfile
@@ -24,6 +25,12 @@ event = client.GetEvent(id=event_id)
 date = datetime.fromtimestamp(event.time/1000).strftime('%Y-%m-%d')
 filename = 'meetup-rsvps-{}-{}.apkg'.format(event.group['urlname'], date)
 
+def create_path(path):
+    try:
+        os.makedirs(path)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
 
 def retrieveURL(url):
     "Download file into media folder and return local filename or None."
@@ -44,6 +51,7 @@ def retrieveURL(url):
     path = urllib.parse.unquote(url)
     return collection.media.writeData(path, filecontents)
 
+create_path('outputs')
 
 with tempfile.TemporaryDirectory() as tmpdir:
     collection = anki.Collection(os.path.join(tmpdir, 'collection.anki2'))
@@ -91,7 +99,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
     # Not sure if this is necessary
     collection.media.findChanges()
 
-    output_file = collection.media._oldcwd + '/' + filename
+    output_file = collection.media._oldcwd + '/outputs/' + filename
 
     export = AnkiPackageExporter(collection)
     export.exportInto(output_file)
