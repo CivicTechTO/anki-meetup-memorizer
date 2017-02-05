@@ -34,3 +34,10 @@ make apkg <meetup-event-id>
 ```
 
 Your generated APKG file will now be in the `outputs/` directory.
+
+## Notes
+
+* Each meetup event gets it's own card deck.
+* We include attendees who RSVP'd both Yes and No, as both forms of
+  action are indicative of an active community member.
+* Members without photos are obviously not included in the deck.
