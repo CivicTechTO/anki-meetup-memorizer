@@ -17,7 +17,8 @@ names and faces of your Meetup attendees.
 ## Requirements
 
 * `make`
-* Python
+* Python 2.7+
+* [`virtualenv-wrapper`](https://virtualenvwrapper.readthedocs.io/en/latest/install.html)
 
 ## Usage
 
@@ -25,6 +26,10 @@ To run the script and generate a new APKG file for
 [importing](https://ankidroid.org/docs/manual.html#importing):
 
 ```
+# Prepare virtualenv
+mkvirtualenv anki-meetup
+workon anki-meetup
+
 # Get your MEETUP_API_KEY here:
 # https://secure.meetup.com/meetup_api/key/
 export MEETUP_API_KEY=xxxxxxxxx
