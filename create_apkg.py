@@ -4,15 +4,26 @@
 
 import anki
 import csv
+import meetup.api
 import sys
 import tempfile
 import os
 import urllib
 
 from anki.exporting import AnkiPackageExporter
+from datetime import datetime
 
 
-script, rsvp_csvfile = sys.argv
+api_key = os.environ['MEETUP_API_KEY']
+script, event_id = sys.argv
+
+client = meetup.api.Client(api_key)
+
+event = client.GetEvent(id=event_id)
+
+date = datetime.fromtimestamp(event.time/1000).strftime('%Y-%m-%d')
+filename = 'meetup-rsvps-{}-{}.apkg'.format(event.group['urlname'], date)
+
 
 def retrieveURL(url):
     "Download file into media folder and return local filename or None."
@@ -37,7 +48,7 @@ def retrieveURL(url):
 with tempfile.TemporaryDirectory() as tmpdir:
     collection = anki.Collection(os.path.join(tmpdir, 'collection.anki2'))
 
-    deck_id = collection.decks.id("Civic Tech Toronto - RSVPs")
+    deck_id = collection.decks.id('Meetup: {}'.format(event.name))
     deck = collection.decks.get(deck_id)
 
     model = collection.models.new("meetup_model")
@@ -62,24 +73,25 @@ with tempfile.TemporaryDirectory() as tmpdir:
     note.guid = 0
     collection.addNote(note)
 
-    filepath = collection.media._oldcwd + '/' + rsvp_csvfile
-    reader = csv.reader(open(filepath))
-    for i, row in enumerate(reader):
-        if i == 0: continue
-        name, url = row
+    response = client.GetRsvps(event_id=event_id)
+    for rsvp in response.results:
+        if not rsvp.get('member_photo'):
+            continue
+        name = rsvp['member']['name']
+        url = rsvp['member_photo']['photo_link']
         local_file = retrieveURL(url)
 
         note = collection.newNote()
         note['person_photo'] = '<img src="{}" />'.format(local_file)
         note['person_name'] = name
-        note.guid = i
+        note.guid = rsvp['member']['member_id']
         collection.addNote(note)
 
     # Update media database, just in case.
     # Not sure if this is necessary
     collection.media.findChanges()
 
-    output_file = collection.media._oldcwd + '/' + rsvp_csvfile.replace('.csv', '.apkg')
+    output_file = collection.media._oldcwd + '/' + filename
 
     export = AnkiPackageExporter(collection)
     export.exportInto(output_file)
