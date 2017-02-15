@@ -27,7 +27,7 @@ To run the script and generate a new APKG file for
 
 ```
 # Prepare virtualenv
-mkvirtualenv anki-meetup
+mkvirtualenv anki-meetup --python=`which python3`
 workon anki-meetup
 
 # Get your MEETUP_API_KEY here:
