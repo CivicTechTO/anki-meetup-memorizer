@@ -30,6 +30,8 @@ To run the script and generate a new APKG file for
 mkvirtualenv anki-meetup --python=`which python3`
 workon anki-meetup
 
+export MEETUP_URLNAME=Civic-Tech-Toronto
+
 # Get your MEETUP_API_KEY here:
 # https://secure.meetup.com/meetup_api/key/
 export MEETUP_API_KEY=xxxxxxxxx

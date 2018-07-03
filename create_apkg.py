@@ -16,14 +16,15 @@ from datetime import datetime
 
 
 api_key = os.environ['MEETUP_API_KEY']
+urlname = os.environ['MEETUP_URLNAME']
 script, event_id = sys.argv
 
 client = meetup.api.Client(api_key)
 
-event = client.GetEvent(id=event_id)
+event = client.GetEvent(id=event_id, urlname=urlname)
 
 date = datetime.fromtimestamp(event.time/1000).strftime('%Y-%m-%d')
-filename = 'meetup-rsvps-{}-{}.apkg'.format(event.group['urlname'], date)
+filename = 'meetup-rsvps-{}-{}.apkg'.format(urlname, date)
 
 def create_path(path):
     try:
