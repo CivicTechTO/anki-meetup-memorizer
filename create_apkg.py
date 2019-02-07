@@ -9,6 +9,7 @@ import csv
 import errno
 import meetup.api
 import tempfile
+import textwrap
 import os
 import urllib
 
@@ -71,6 +72,22 @@ def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
 
     date = datetime.fromtimestamp(event.time/1000).strftime('%Y-%m-%d')
     filename = 'meetup-rsvps-{}-{}.apkg'.format(urlname, date)
+
+    ### Output confirmation to user
+
+    if verbose or not yes:
+        confirmation_details = """\
+            We are using the following configuration:
+              * Meetup Group: {group}
+              * Event Name:   {name}
+                    * Date:   {date}
+                    * RSVPs:  {rsvps}"""
+        confirmation_details = confirmation_details.format(group=urlname, name=event.name, date=date, rsvps=event.yes_rsvp_count)
+        click.echo(textwrap.dedent(confirmation_details))
+
+    if not yes:
+        click.confirm('Do you want to continue?', abort=True)
+
     create_path('outputs')
 
     with tempfile.TemporaryDirectory() as tmpdir:
