@@ -1,0 +1,13 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+meetup = {editable = true, ref = "develop", git = "git://github.com/patcon/meetup-api.git"}
+pyaudio = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"

@@ -16,9 +16,8 @@ names and faces of your Meetup attendees.
 
 ## Requirements
 
-* `make`
-* Python 2.7+
-* [`virtualenv-wrapper`](https://virtualenvwrapper.readthedocs.io/en/latest/install.html)
+* Python 3.6+
+* [`pipenv`](https://pipenv.readthedocs.io/en/latest/#install-pipenv-today) (optional)
 
 ## Usage
 
@@ -26,9 +25,12 @@ To run the script and generate a new APKG file for
 [importing](https://ankidroid.org/docs/manual.html#importing):
 
 ```
-# Prepare virtualenv
-mkvirtualenv anki-meetup --python=`which python3`
-workon anki-meetup
+# Install prerequisites on OSX
+brew install portaudio
+
+# Install dependencies
+git submodule update --init
+pipenv install
 
 export MEETUP_URLNAME=Civic-Tech-Toronto
 
@@ -36,8 +38,11 @@ export MEETUP_URLNAME=Civic-Tech-Toronto
 # https://secure.meetup.com/meetup_api/key/
 export MEETUP_API_KEY=xxxxxxxxx
 
+# Alternatively, you can set these in a dot-env file
+cp sample.env .env # Ensure you edit the dummy values
+
 # Find the <meetup-event-id> in the event URL
-make apkg <meetup-event-id>
+pipenv run python create_apkg.py <meetup-event-id>
 ```
 
 Your generated APKG file will now be in the `outputs/` directory.

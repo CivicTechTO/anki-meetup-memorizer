@@ -1,2 +1,0 @@
--e git://github.com/patcon/meetup-api.git@patch-1#egg=meetup
-pyaudio

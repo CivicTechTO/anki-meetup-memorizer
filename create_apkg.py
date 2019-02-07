@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
+import sys
+sys.path.append('./anki')
+
 # See: https://superuser.com/questions/698902/can-i-create-an-anki-deck-from-a-csv-file
 
 import anki
 import csv
 import errno
 import meetup.api
-import sys
 import tempfile
 import os
 import urllib
