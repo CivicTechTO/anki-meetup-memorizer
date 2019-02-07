@@ -32,17 +32,14 @@ brew install portaudio
 git submodule update --init
 pipenv install
 
-export MEETUP_URLNAME=Civic-Tech-Toronto
+# For usage instructions
+pipenv run python create_apkg.py --help
 
-# Get your MEETUP_API_KEY here:
-# https://secure.meetup.com/meetup_api/key/
-export MEETUP_API_KEY=xxxxxxxxx
+# You can set config via a dot-env file
+cp sample.env .env
 
-# Alternatively, you can set these in a dot-env file
-cp sample.env .env # Ensure you edit the dummy values
-
-# Find the <meetup-event-id> in the event URL
-pipenv run python create_apkg.py <meetup-event-id>
+# To generate an APKG import file
+pipenv run python create_apkg.py <meetup-event-url>
 ```
 
 Your generated APKG file will now be in the `outputs/` directory.

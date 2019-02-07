@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-
 import sys
 sys.path.append('./anki')
 
 # See: https://superuser.com/questions/698902/can-i-create-an-anki-deck-from-a-csv-file
 
 import anki
+import click
 import csv
 import errno
 import meetup.api
@@ -16,17 +15,7 @@ import urllib
 from anki.exporting import AnkiPackageExporter
 from datetime import datetime
 
-
-api_key = os.environ['MEETUP_API_KEY']
-urlname = os.environ['MEETUP_URLNAME']
-script, event_id = sys.argv
-
-client = meetup.api.Client(api_key)
-
-event = client.GetEvent(id=event_id, urlname=urlname)
-
-date = datetime.fromtimestamp(event.time/1000).strftime('%Y-%m-%d')
-filename = 'meetup-rsvps-{}-{}.apkg'.format(urlname, date)
+CONTEXT_SETTINGS = dict(help_option_names=['--help', '-h'])
 
 def create_path(path):
     try:
@@ -52,57 +41,89 @@ def retrieveURL(url):
         showWarning(_("An error occurred while opening %s") % e)
         return
     path = urllib.parse.unquote(url)
-    return collection.media.writeData(path, filecontents)
+    return (path, filecontents)
 
-create_path('outputs')
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('meetup-event-url', nargs=1)
+@click.option('--meetup-api-key',
+              required=True,
+              help='API key for any unprivileged site user',
+              metavar='<string>')
+@click.option('--yes', '-y',
+              help='Skip confirmation prompts',
+              is_flag=True)
+@click.option('--verbose', '-v',
+              help='Show output for each action',
+              is_flag=True)
+@click.option('--debug', '-d',
+              is_flag=True,
+              help='Show full debug output',
+              default=False)
+@click.option('--noop',
+              help='Skip API calls that change/destroy data',
+              is_flag=True)
+def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
+    parse_result = urllib.parse.urlparse(meetup_event_url)
+    urlname, _, event_id = parse_result.path.split('/')[1:4]
+    client = meetup.api.Client(meetup_api_key)
 
-with tempfile.TemporaryDirectory() as tmpdir:
-    collection = anki.Collection(os.path.join(tmpdir, 'collection.anki2'))
+    event = client.GetEvent(id=event_id, urlname=urlname)
 
-    deck_id = collection.decks.id('Meetup: {}'.format(event.name))
-    deck = collection.decks.get(deck_id)
+    date = datetime.fromtimestamp(event.time/1000).strftime('%Y-%m-%d')
+    filename = 'meetup-rsvps-{}-{}.apkg'.format(urlname, date)
+    create_path('outputs')
 
-    model = collection.models.new("meetup_model")
-    model['did'] = deck_id
-    model['css'] = ''
-    collection.models.addField(model, collection.models.newField('person_photo'))
-    collection.models.addField(model, collection.models.newField('person_name'))
+    with tempfile.TemporaryDirectory() as tmpdir:
+        collection = anki.Collection(os.path.join(tmpdir, 'collection.anki2'))
 
-    tmpl = collection.models.newTemplate('meetup attendee')
-    tmpl['qfmt'] = '{{person_photo}}'
-    tmpl['afmt'] = '{{FrontSide}}\n\n<hr>\n\n{{person_name}}'
-    collection.models.addTemplate(model, tmpl)
+        deck_id = collection.decks.id('Meetup: {}'.format(event.name))
+        deck = collection.decks.get(deck_id)
 
-    model['id'] = 123456789
-    collection.models.update(model)
-    collection.models.setCurrent(model)
-    collection.models.save(model)
+        model = collection.models.new("meetup_model")
+        model['did'] = deck_id
+        model['css'] = ''
+        collection.models.addField(model, collection.models.newField('person_photo'))
+        collection.models.addField(model, collection.models.newField('person_name'))
 
-    note = anki.notes.Note(collection, model)
-    note['person_photo'] = ''
-    note['person_name'] = ''
-    note.guid = 0
-    collection.addNote(note)
+        tmpl = collection.models.newTemplate('meetup attendee')
+        tmpl['qfmt'] = '{{person_photo}}'
+        tmpl['afmt'] = '{{FrontSide}}\n\n<hr>\n\n{{person_name}}'
+        collection.models.addTemplate(model, tmpl)
 
-    response = client.GetRsvps(event_id=event_id)
-    for rsvp in response.results:
-        if not rsvp.get('member_photo'):
-            continue
-        name = rsvp['member']['name']
-        url = rsvp['member_photo']['photo_link']
-        local_file = retrieveURL(url)
+        model['id'] = 123456789
+        collection.models.update(model)
+        collection.models.setCurrent(model)
+        collection.models.save(model)
 
-        note = collection.newNote()
-        note['person_photo'] = '<img src="{}" />'.format(local_file)
-        note['person_name'] = name
-        note.guid = rsvp['member']['member_id']
+        note = anki.notes.Note(collection, model)
+        note['person_photo'] = ''
+        note['person_name'] = ''
+        note.guid = 0
         collection.addNote(note)
 
-    # Update media database, just in case.
-    # Not sure if this is necessary
-    collection.media.findChanges()
+        response = client.GetRsvps(event_id=event_id)
+        for rsvp in response.results:
+            if not rsvp.get('member_photo'):
+                continue
+            name = rsvp['member']['name']
+            url = rsvp['member_photo']['photo_link']
+            path, contents = retrieveURL(url)
+            local_file = collection.media.writeData(path, contents)
 
-    output_file = collection.media._oldcwd + '/outputs/' + filename
+            note = collection.newNote()
+            note['person_photo'] = '<img src="{}" />'.format(local_file)
+            note['person_name'] = name
+            note.guid = rsvp['member']['member_id']
+            collection.addNote(note)
 
-    export = AnkiPackageExporter(collection)
-    export.exportInto(output_file)
+        # Update media database, just in case.
+        # Not sure if this is necessary
+        collection.media.findChanges()
+
+        output_file = collection.media._oldcwd + '/outputs/' + filename
+
+        export = AnkiPackageExporter(collection)
+        export.exportInto(output_file)
+
+if __name__ == '__main__':
+    create_apkg(auto_envvar_prefix='ANKI')

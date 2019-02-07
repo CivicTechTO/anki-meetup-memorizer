@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+click = "*"
 meetup = {editable = true, ref = "develop", git = "git://github.com/patcon/meetup-api.git"}
 pyaudio = "*"
 
