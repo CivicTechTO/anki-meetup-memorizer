@@ -44,12 +44,7 @@ def retrieveURL(url):
     path = urllib.parse.unquote(url)
     return (path, filecontents)
 
-@click.command(context_settings=CONTEXT_SETTINGS)
-@click.argument('meetup-event-url', nargs=1)
-@click.option('--meetup-api-key',
-              required=True,
-              help='API key for any unprivileged site user',
-              metavar='<string>')
+@click.group(context_settings=CONTEXT_SETTINGS)
 @click.option('--yes', '-y',
               help='Skip confirmation prompts',
               is_flag=True)
@@ -63,7 +58,23 @@ def retrieveURL(url):
 @click.option('--noop',
               help='Skip API calls that change/destroy data',
               is_flag=True)
-def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
+@click.pass_context
+def cli(ctx, yes, verbose, debug, noop):
+    ctx.obj = {
+        'yes': yes,
+        'verbose': verbose,
+        'debug': debug,
+        'noop': noop,
+    }
+
+@cli.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('meetup-event-url', nargs=1)
+@click.option('--meetup-api-key',
+              required=True,
+              help='API key for any unprivileged site user',
+              metavar='<string>')
+@click.pass_context
+def create_apkg(ctx, meetup_event_url, meetup_api_key):
     parse_result = urllib.parse.urlparse(meetup_event_url)
     urlname, _, event_id = parse_result.path.split('/')[1:4]
     client = meetup.api.Client(meetup_api_key)
@@ -75,7 +86,7 @@ def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
 
     ### Output confirmation to user
 
-    if verbose or not yes:
+    if ctx.obj['verbose'] or not ctx.obj['yes']:
         confirmation_details = """\
             We are using the following configuration:
               * Meetup Group: {group}
@@ -85,7 +96,7 @@ def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
         confirmation_details = confirmation_details.format(group=urlname, name=event.name, date=date, rsvps=event.yes_rsvp_count)
         click.echo(textwrap.dedent(confirmation_details))
 
-    if not yes:
+    if not ctx.obj['yes']:
         click.confirm('Do you want to continue?', abort=True)
 
     create_path('outputs')
@@ -143,4 +154,4 @@ def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
         export.exportInto(output_file)
 
 if __name__ == '__main__':
-    create_apkg(auto_envvar_prefix='ANKI')
+    cli(auto_envvar_prefix='ANKI', obj={})
