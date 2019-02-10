@@ -7,6 +7,7 @@ import anki
 import click
 import csv
 import errno
+import functools
 import meetup.api
 import tempfile
 import textwrap
@@ -39,42 +40,43 @@ def retrieveURL(url):
             'User-Agent': 'Mozilla/5.0 (compatible; Anki)'})
         filecontents = urllib.request.urlopen(req).read()
     except urllib.error.URLError as e:
-        showWarning(_("An error occurred while opening %s") % e)
+        click.echo("An error occurred while opening %s".format(e), err=True)
         return
     path = urllib.parse.unquote(url)
     return (path, filecontents)
 
+def common_params(func):
+    @click.option('--yes', '-y',
+                  help='Skip confirmation prompts',
+                  is_flag=True)
+    @click.option('--verbose', '-v',
+                  help='Show output for each action',
+                  is_flag=True)
+    @click.option('--debug', '-d',
+                  is_flag=True,
+                  help='Show full debug output',
+                  default=False)
+    @click.option('--noop',
+                  help='Skip API calls that change/destroy data',
+                  is_flag=True)
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
 @click.group(context_settings=CONTEXT_SETTINGS)
-@click.option('--yes', '-y',
-              help='Skip confirmation prompts',
-              is_flag=True)
-@click.option('--verbose', '-v',
-              help='Show output for each action',
-              is_flag=True)
-@click.option('--debug', '-d',
-              is_flag=True,
-              help='Show full debug output',
-              default=False)
-@click.option('--noop',
-              help='Skip API calls that change/destroy data',
-              is_flag=True)
-@click.pass_context
-def cli(ctx, yes, verbose, debug, noop):
-    ctx.obj = {
-        'yes': yes,
-        'verbose': verbose,
-        'debug': debug,
-        'noop': noop,
-    }
+def cli():
+    pass
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('meetup-event-url', nargs=1)
 @click.option('--meetup-api-key',
               required=True,
               help='API key for any unprivileged site user',
+              envvar='ANKI_MEETUP_API_KEY',
               metavar='<string>')
-@click.pass_context
-def create_apkg(ctx, meetup_event_url, meetup_api_key):
+@common_params
+def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
     parse_result = urllib.parse.urlparse(meetup_event_url)
     urlname, _, event_id = parse_result.path.split('/')[1:4]
     client = meetup.api.Client(meetup_api_key)
@@ -86,7 +88,7 @@ def create_apkg(ctx, meetup_event_url, meetup_api_key):
 
     ### Output confirmation to user
 
-    if ctx.obj['verbose'] or not ctx.obj['yes']:
+    if verbose or not yes:
         confirmation_details = """\
             We are using the following configuration:
               * Meetup Group: {group}
@@ -94,9 +96,9 @@ def create_apkg(ctx, meetup_event_url, meetup_api_key):
                     * Date:   {date}
                     * RSVPs:  {rsvps}"""
         confirmation_details = confirmation_details.format(group=urlname, name=event.name, date=date, rsvps=event.yes_rsvp_count)
-        click.echo(textwrap.dedent(confirmation_details))
+        click.echo(textwrap.dedent(confirmation_details), err=True)
 
-    if not ctx.obj['yes']:
+    if not yes:
         click.confirm('Do you want to continue?', abort=True)
 
     create_path('outputs')
@@ -132,7 +134,9 @@ def create_apkg(ctx, meetup_event_url, meetup_api_key):
         response = client.GetRsvps(event_id=event_id)
         for rsvp in response.results:
             if not rsvp.get('member_photo'):
+                if verbose: click.echo('Skipping {} (no photo)'.format(rsvp['member']['name']), err=True)
                 continue
+            if verbose: click.echo('Fetching ' + rsvp['member']['name'], err=True)
             name = rsvp['member']['name']
             url = rsvp['member_photo']['photo_link']
             path, contents = retrieveURL(url)
@@ -148,10 +152,22 @@ def create_apkg(ctx, meetup_event_url, meetup_api_key):
         # Not sure if this is necessary
         collection.media.findChanges()
 
-        output_file = collection.media._oldcwd + '/outputs/' + filename
+        output_filepath = collection.media._oldcwd + '/outputs/' + filename
 
         export = AnkiPackageExporter(collection)
-        export.exportInto(output_file)
+        export.exportInto(output_filepath)
+        click.echo('output_filepath: '+output_filepath)
+
+@cli.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('filename')
+@click.option('--gdrive-folder', '-f',
+              required=True,
+              help='Google Drive folder to upload file into. (URL or folder ID)',
+              envvar='ANKI_GDRIVE_FOLDER',
+              metavar='<url/id>')
+@common_params
+def upload(filename, gdrive_folder, yes, verbose, debug, noop):
+    pass
 
 if __name__ == '__main__':
-    cli(auto_envvar_prefix='ANKI', obj={})
+    cli(auto_envvar_prefix='ANKI')
