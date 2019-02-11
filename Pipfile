@@ -7,6 +7,7 @@ name = "pypi"
 click = "*"
 meetup = {editable = true, ref = "develop", git = "git://github.com/patcon/meetup-api.git"}
 pyaudio = "*"
+PyDrive = "*"
 
 [dev-packages]
 

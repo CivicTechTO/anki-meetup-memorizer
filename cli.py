@@ -8,6 +8,8 @@ import click
 import csv
 import errno
 import functools
+import hashlib
+import json
 import meetup.api
 import tempfile
 import textwrap
@@ -16,8 +18,21 @@ import urllib
 
 from anki.exporting import AnkiPackageExporter
 from datetime import datetime
+from googleapiclient.discovery import build as gclient_build
+from oauth2client.service_account import ServiceAccountCredentials
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+
 
 CONTEXT_SETTINGS = dict(help_option_names=['--help', '-h'])
+GOOGLE_SCOPES = ['https://www.googleapis.com/auth/drive']
+
+def get_md5(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 def create_path(path):
     try:
@@ -158,16 +173,66 @@ def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
         export.exportInto(output_filepath)
         click.echo('output_filepath: '+output_filepath)
 
+
+def echo_config(dict, fields):
+    for k, v in dict.items():
+        if k in fields:
+            click.echo('{}: {}'.format(k, v))
+
+
 @cli.command(context_settings=CONTEXT_SETTINGS)
-@click.argument('filename')
+@click.argument('file')
 @click.option('--gdrive-folder', '-f',
               required=True,
               help='Google Drive folder to upload file into. (URL or folder ID)',
               envvar='ANKI_GDRIVE_FOLDER',
               metavar='<url/id>')
+@click.option('--google-creds', '-c',
+              type=click.File('rb'),
+              required=True,
+              help='',
+              envvar='ANKI_GOOGLE_CREDS',
+              metavar='<file>')
 @common_params
-def upload(filename, gdrive_folder, yes, verbose, debug, noop):
-    pass
+def upload(file, gdrive_folder, google_creds, yes, verbose, debug, noop):
+    folder_id = gdrive_folder
+    json_bytes = b''
+    while True:
+        chunk = google_creds.read(1024)
+        if not chunk:
+            break
+        json_bytes = json_bytes + chunk
+    keyfile_dict = json.loads(json_bytes)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(keyfile_dict, GOOGLE_SCOPES)
+    if debug: click.echo('>>> Service account email: ' + creds.service_account_email, err=True)
+    gauth = GoogleAuth()
+    gauth.credentials = creds
+    gdrive = GoogleDrive(gauth)
+    query = "'{}' in parents".format(folder_id)
+    file_list = gdrive.ListFile({'q': query}).GetList()
+    filename = file.split('/')[-1]
+    match = [f for f in file_list if f['title'] == filename]
+    match = match.pop() if match else None
+    if match:
+        if match['md5Checksum'] == get_md5(file):
+            click.echo('File exists already. Skipping...', err=True)
+        else:
+            click.echo('File exists and differs. Overriding...', err=True)
+            match.SetContentFile(file)
+            match.Upload()
+
+        myfile = match
+    else:
+        click.echo('Adding file to folder...', err=True)
+        new_file = gdrive.CreateFile({'title': filename})
+        new_file.SetContentFile(file)
+        new_file.Upload()
+        new_file.auth.service.parents().insert(fileId=new_file['id'], body={'id': folder_id}).execute()
+        new_file.FetchMetadata(fields='permissions')
+        # NOTE: We can't change the owner of a non-Drive file with a service account.
+        myfile = new_file
+
+    echo_config(myfile.metadata, ['webContentLink', 'title'])
 
 if __name__ == '__main__':
     cli(auto_envvar_prefix='ANKI')
