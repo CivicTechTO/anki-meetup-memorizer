@@ -160,7 +160,7 @@ def create_apkg(meetup_event_url, meetup_api_key, yes, verbose, debug, noop):
             note = collection.newNote()
             note['person_photo'] = '<img src="{}" />'.format(local_file)
             note['person_name'] = name
-            note.guid = rsvp['member']['member_id']
+            note.guid = rsvp['rsvp_id']
             collection.addNote(note)
 
         # Update media database, just in case.
