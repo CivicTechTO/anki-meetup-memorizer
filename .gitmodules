@@ -1,3 +1,0 @@
-[submodule "anki"]
-	path = anki
-	url = git://github.com/dae/anki.git
