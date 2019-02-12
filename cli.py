@@ -15,6 +15,7 @@ import tempfile
 import textwrap
 import os
 import urllib
+import anki.sched
 
 from anki.exporting import AnkiPackageExporter
 from datetime import datetime
