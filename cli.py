@@ -19,7 +19,6 @@ import anki.sched
 
 from anki.exporting import AnkiPackageExporter
 from datetime import datetime
-from googleapiclient.discovery import build as gclient_build
 from oauth2client.service_account import ServiceAccountCredentials
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
