@@ -25,9 +25,6 @@ To run the script and generate a new APKG file for
 [importing](https://ankidroid.org/docs/manual.html#importing):
 
 ```
-# Install prerequisites on OSX
-brew install portaudio
-
 # Install dependencies
 git submodule update --init
 pipenv install
