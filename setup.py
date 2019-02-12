@@ -8,9 +8,6 @@ setup(
         'Click',
         'meetup-api',
     ],
-    dependency_links=[
-        #'git+https://github.com/patcon/meetup-api.git@develop#egg=meetup-api',
-    ],
     entry_points='''
         [console_scripts]
         anki-meetup-memorizer=cli:create_apkg

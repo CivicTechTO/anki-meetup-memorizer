@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "adbc974a83797c3feb1b54ddccba8e7991d1b2364f03b0712fed704f1193c570"
+            "sha256": "9f5421075d7a2992174d4f17b4a9817993cb5111fbee1f0e94ee8e3f827645d1"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -83,7 +83,7 @@
             ],
             "version": "==2.8"
         },
-        "meetup": {
+        "meetup-api": {
             "editable": true,
             "git": "git://github.com/patcon/meetup-api.git",
             "ref": "b057bd105799fccc3c19577fec1e20c94f616a4f"
