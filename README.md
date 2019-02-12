@@ -30,13 +30,13 @@ git submodule update --init
 pipenv install
 
 # For usage instructions
-pipenv run python cli.py --help
+pipenv run anki-meetup-memorizer --help
 
 # You can set config via a dot-env file
 cp sample.env .env
 
 # To generate an APKG import file
-pipenv run python cli.py create-apkg <meetup-event-url>
+pipenv run anki-meetup-memorizer <meetup-event-url>
 ```
 
 Your generated APKG file will now be in the `outputs/` directory.

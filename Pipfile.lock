@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a27dc544d160dc66f063f359ef24c128bfcde5801f3ef7460008fbd21b0c1b10"
+            "sha256": "adbc974a83797c3feb1b54ddccba8e7991d1b2364f03b0712fed704f1193c570"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,10 @@
         ]
     },
     "default": {
+        "anki-meetup-memorizer": {
+            "editable": true,
+            "path": "."
+        },
         "cachetools": {
             "hashes": [
                 "sha256:219b7dc6024195b6f2bc3d3f884d1fef458745cd323b04165378622dcc823852",

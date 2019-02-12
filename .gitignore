@@ -2,3 +2,8 @@
 outputs/
 __pycache__/
 service-key.json
+
+# Python package files
+*.egg-info/
+build/
+dist/
