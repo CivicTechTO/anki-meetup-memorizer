@@ -1,16 +1,20 @@
-from setuptools import setup
+from setuptools import setup, find_packages, find_namespace_packages
 
 setup(
     name='anki-meetup-memorizer',
     version='0.1',
-    py_modules=['cli'],
+    # Look for anki package in anki/anki
+    package_dir={'anki': 'anki/anki'},
+    packages=find_packages() + find_packages('anki', include=['anki','anki.*']),
+    include_package_data=True,
     install_requires=[
         'Click',
         'meetup-api',
         'decorator',
     ],
-    entry_points='''
-        [console_scripts]
-        anki-meetup-memorizer=cli:create_apkg
-    ''',
+    entry_points={
+        'console_scripts': [
+            'anki-meetup-memorizer=anki_meetup_memorizer.cli:create_apkg',
+        ],
+    }
 )
