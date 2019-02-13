@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 click = "*"
 meetup-api = {editable = true, ref = "develop", git = "git://github.com/patcon/meetup-api.git"}
-PyDrive = "*"
 anki-meetup-memorizer = {editable = true, path = "."}
 
 [dev-packages]
