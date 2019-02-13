@@ -1,3 +1,6 @@
 [submodule "anki"]
-	path = anki
+	path = anki_meetup_memorizer/anki
+	url = https://github.com/dae/anki.git
+[submodule "anki_meetup_memorizer/anki"]
+	path = anki_meetup_memorizer/anki
 	url = https://github.com/dae/anki.git

@@ -7,6 +7,7 @@ setup(
     install_requires=[
         'Click',
         'meetup-api',
+        'decorator',
     ],
     entry_points='''
         [console_scripts]
