@@ -12,6 +12,7 @@ setup(
         'meetup-api',
         'decorator',
     ],
+    # TODO: Fetch meetup-api from custom fork.
     entry_points={
         'console_scripts': [
             'anki-meetup-memorizer=anki_meetup_memorizer.cli:create_apkg',

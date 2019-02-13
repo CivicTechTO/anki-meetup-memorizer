@@ -21,6 +21,13 @@ names and faces of your Meetup attendees.
 
 ## Usage
 
+```
+# Not yet working. Please use development instructions.
+$ pip install git+https://github.com/civictechto/anki-meetup-memorizer
+```
+
+## Development
+
 To run the script and generate a new APKG file for
 [importing](https://ankidroid.org/docs/manual.html#importing):
 
