@@ -1,7 +1,7 @@
 import sys
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(dir_path, 'anki'))
+sys.path.append(os.path.join(dir_path, '..', 'anki'))
 
 # See: https://superuser.com/questions/698902/can-i-create-an-anki-deck-from-a-csv-file
 
