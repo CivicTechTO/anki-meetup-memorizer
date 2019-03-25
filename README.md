@@ -47,7 +47,15 @@ allows for better isolation of Python projects.
 # To use `pipenv` and an isolated project environment via `pipenv run`:
 $ pipenv install git+https://github.com/civictechto/anki-meetup-memorizer#egg=anki-meetup-memorizer
 $ pipenv run anki-meetup-memorizer --help
+
+# You can set config via a dot-env file
+$ cp sample.env .env
+
+# To generate an APKG import file
+$ pipenv run anki-meetup-memorizer <meetup-event-url>
 ```
+
+Your generated APKG file will now be in the `outputs/` directory.
 
 ## Development
 
@@ -55,18 +63,12 @@ To run the script and generate a new APKG file for
 [importing](https://ankidroid.org/docs/manual.html#importing):
 
 ```
+cd path/to/anki-meetup-memorizer
+
 # Install dependencies
 git submodule update --init
 pipenv install
-
-# You can set config via a dot-env file
-cp sample.env .env
-
-# To generate an APKG import file
-pipenv run anki-meetup-memorizer <meetup-event-url>
 ```
-
-Your generated APKG file will now be in the `outputs/` directory.
 
 ## Notes
 
