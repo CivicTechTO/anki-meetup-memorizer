@@ -22,8 +22,31 @@ names and faces of your Meetup attendees.
 ## Usage
 
 ```
-# Not yet working. Please use development instructions.
-$ pip install git+https://github.com/civictechto/anki-meetup-memorizer
+$ cd path/to/project
+$ pip install git+https://github.com/civictechto/anki-meetup-memorizer#egg=anki-meetup-memorizer
+
+# For usage instructions
+$ anki-meetup-memorizer --help
+Usage: anki-meetup-memorizer [OPTIONS] MEETUP_EVENT_URL
+
+Options:
+  --meetup-api-key <string>  API key for any unprivileged site user
+                             [required]
+  -y, --yes                  Skip confirmation prompts
+  -v, --verbose              Show output for each action
+  -d, --debug                Show full debug output
+  --noop                     Skip API calls that change/destroy data
+  -h, --help                 Show this message and exit.
+
+```
+
+You may also choose to use the `pipenv`, if you have it installed. It
+allows for better isolation of Python projects.
+
+```
+# To use `pipenv` and an isolated project environment via `pipenv run`:
+$ pipenv install git+https://github.com/civictechto/anki-meetup-memorizer#egg=anki-meetup-memorizer
+$ pipenv run anki-meetup-memorizer --help
 ```
 
 ## Development
@@ -35,9 +58,6 @@ To run the script and generate a new APKG file for
 # Install dependencies
 git submodule update --init
 pipenv install
-
-# For usage instructions
-pipenv run anki-meetup-memorizer --help
 
 # You can set config via a dot-env file
 cp sample.env .env
