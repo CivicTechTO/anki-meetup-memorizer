@@ -1,6 +1,6 @@
 # Meetup RSVP Memorizer
 
-This is a quick little script for helping Meetup.com event organizers
+This is a command line tool for helping Meetup.com event organizers
 remember the names and faces of attendees, taken from their public profiles.
 
 ![Screenshot of Anki Desktop and AnkiDroid](https://imgur.com/h471IJt.png)
@@ -11,8 +11,14 @@ in-person communities of practice.
 **Anki** is a popular flashcard tool that helps people memorize things.
 It is available on desktop and mobile.
 
-Use this script to generate an Anki flashcard deck for memorizing the
+Use this tool to generate an Anki flashcard deck for memorizing the
 names and faces of your Meetup attendees.
+
+## Technologies Used
+
+- **Python.** A programming language common in scripting.
+- [**Click.**][click] A Python library for writing simple command-line
+  tools.
 
 ## Requirements
 
@@ -40,7 +46,7 @@ Options:
 
 ```
 
-You may also choose to use the `pipenv`, if you have it installed. It
+You may also choose to use `pipenv`, if you have it installed. It
 allows for better isolation of Python projects.
 
 ```
@@ -76,3 +82,6 @@ pipenv install
 * We include attendees who RSVP'd both Yes and No, as both forms of
   action are indicative of an active community member.
 * Members without photos are obviously not included in the deck.
+
+<!-- Links -->
+   [click]: http://click.pocoo.org/5/
